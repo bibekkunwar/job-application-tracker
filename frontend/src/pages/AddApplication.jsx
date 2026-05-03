@@ -17,7 +17,7 @@ function AddApplication() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { token } = useAuth();
+  const { token, handleUnauthorized } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -37,6 +37,7 @@ function AddApplication() {
       });
       navigate('/');
     } catch (err) {
+      if (err.status === 401) { handleUnauthorized(); return; }
       setError(err.message);
     } finally {
       setLoading(false);

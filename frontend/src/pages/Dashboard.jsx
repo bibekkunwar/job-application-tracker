@@ -11,12 +11,16 @@ const STATUS_COLORS = {
   ghosted: 'bg-gray-100 text-gray-500',
 };
 
+const STATUS_OPTIONS = ['applied', 'in progress', 'accepted', 'rejected', 'ghosted'];
+
 function Dashboard() {
   const [jobs, setJobs] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
-  const { token, logout, user } = useAuth();
+  const { token, logout, user, handleUnauthorized } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +29,7 @@ function Dashboard() {
         const result = await getJobs(token);
         setJobs(result);
       } catch (err) {
+        if (err.status === 401) { handleUnauthorized(); return; }
         setError(err.message);
       } finally {
         setLoading(false);
@@ -38,13 +43,20 @@ function Dashboard() {
     navigate('/login');
   };
 
-  // Stats
   const stats = {
     total: jobs.length,
     inProgress: jobs.filter((j) => j.status === 'in progress').length,
     accepted: jobs.filter((j) => j.status === 'accepted').length,
     rejected: jobs.filter((j) => j.status === 'rejected').length,
   };
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch = job.company_name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === '' || job.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const isFiltering = searchQuery !== '' || statusFilter !== '';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,6 +101,35 @@ function Dashboard() {
           </button>
         </div>
 
+        {/* Search & Filter */}
+        <div className="flex gap-3 mb-4">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by company name..."
+            className="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-600"
+          >
+            <option value="">All statuses</option>
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+            ))}
+          </select>
+          {isFiltering && (
+            <button
+              onClick={() => { setSearchQuery(''); setStatusFilter(''); }}
+              className="text-sm text-gray-400 hover:text-gray-700 px-2"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
         {/* Error */}
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
@@ -96,7 +137,7 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Loading */}
+        {/* Content */}
         {loading ? (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
             <p className="text-gray-400 text-sm">Loading applications...</p>
@@ -111,9 +152,13 @@ function Dashboard() {
               Add your first application
             </button>
           </div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+            <p className="text-gray-400 text-sm">No applications match your search.</p>
+          </div>
         ) : (
           <div className="space-y-3">
-            {jobs.map((job) => (
+            {filteredJobs.map((job) => (
               <div
                 key={job.job_id}
                 onClick={() => navigate(`/applicationdetail/${job.job_id}`)}

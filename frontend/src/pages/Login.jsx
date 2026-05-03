@@ -70,8 +70,6 @@ function Login() {
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
-
             <button
               type="submit"
               disabled={loading}

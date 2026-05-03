@@ -87,6 +87,20 @@ export const createStatus = async (token, jobId, statusData) => {
   return data;
 };
 
+export const updateStatus = async (token, jobId, statusId, statusData) => {
+  const response = await fetch(`${API_URL}/api/jobs/${jobId}/status/${statusId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(statusData),
+  });
+  const data = await response.json();
+  if (!response.ok) throw apiError(data, response.status);
+  return data;
+};
+
 export const deleteStatus = async (token, jobId, statusId) => {
   const response = await fetch(`${API_URL}/api/jobs/${jobId}/status/${statusId}`, {
     method: 'DELETE',

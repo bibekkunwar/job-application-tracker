@@ -56,19 +56,17 @@ job-tracker/
 │   ├── src/
 │   │   ├── api/
 │   │   │   ├── auth.js          # loginUser, registerUser
-│   │   │   └── jobs.js          # getJobs, createJob, updateJob, deleteJob, getStatuses, createStatus
+│   │   │   └── jobs.js          # getJobs, createJob, updateJob, deleteJob, getStatuses, createStatus, updateStatus, deleteStatus
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx  # user + token state, login/logout, localStorage persistence
 │   │   ├── components/
 │   │   │   └── ProtectedRoute.jsx  # Redirects to /login if no token
-│   │   ├── hooks/               # Empty — reserved for custom hooks
 │   │   ├── pages/
 │   │   │   ├── Login.jsx
 │   │   │   ├── Register.jsx
-│   │   │   ├── Dashboard.jsx    # Stats cards + job application table
+│   │   │   ├── Dashboard.jsx    # Stats cards + search/filter + job application list
 │   │   │   ├── AddApplication.jsx
 │   │   │   └── ApplicationDetail.jsx  # Job details + interview round tracking
-│   │   ├── assets/              # Empty — reserved for static assets
 │   │   ├── App.jsx              # Route definitions (public + protected)
 │   │   └── main.jsx             # Entry — wraps App in BrowserRouter + AuthProvider
 │   ├── index.html
@@ -183,18 +181,20 @@ npm run dev        # starts Vite on port 5173
 ### Known Issues
 - ~~`updateJob` in `frontend/src/api/jobs.js` is defined but there is no `deleteStatus` (delete interview round) API call~~ — fixed: `deleteStatus` added and wired to delete button on each round.
 - ~~Token is stored only in `localStorage`; there is no token refresh logic~~ — fixed: `handleUnauthorized` in `AuthContext` auto-logouts and navigates to `/login` on any 401.
-- `src/hooks/` and `src/assets/` are empty placeholder directories.
+- ~~`src/hooks/` and `src/assets/` are empty placeholder directories~~ — removed.
 
 ### TODO
 - [x] Add `deleteStatus` function to `frontend/src/api/jobs.js`
 - [x] Add token expiry detection — `handleUnauthorized` in `AuthContext` auto-logouts on 401
 - [x] Add edit functionality for job application fields on `ApplicationDetail` page
-- [ ] Add pagination or filtering/search to the Dashboard job list
-- [ ] Add `updateStatus` call to frontend API layer (backend route already exists)
+- [x] Add inline edit for each interview round on `ApplicationDetail` (pre-filled form, save via `updateStatus`)
+- [x] Interview rounds sorted chronologically (oldest first) on `ApplicationDetail`
+- [x] Add search (by company name) and filter (by status) to the Dashboard job list
+- [x] Add `updateStatus` to frontend API layer (`frontend/src/api/jobs.js`)
 - [x] Add `vercel.json` to frontend for SPA rewrite (fixes 404 on page refresh in Vercel)
 - [ ] Add `render.yaml` for backend deployment
-- [ ] Add loading and error states consistently across all pages
-- [ ] Write `.env.example` files for both `backend/` and `frontend/`
+- [x] Add loading and error states consistently across all pages (fixed duplicate error in Login, added 401 handling to Dashboard and AddApplication)
+- [x] Write `.env.example` files for both `backend/` and `frontend/`
 
 ---
 

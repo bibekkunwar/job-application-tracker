@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getJobById, deleteJob, updateJob, getStatuses, createStatus, deleteStatus } from '../api/jobs';
+import { getJobById, deleteJob, updateJob, getStatuses, createStatus, updateStatus, deleteStatus } from '../api/jobs';
 
 const STATUS_OPTIONS = ['applied', 'in progress', 'accepted', 'rejected', 'ghosted'];
 const PLATFORM_OPTIONS = ['LinkedIn', 'Seek', 'Indeed', 'Company Website', 'Other'];
@@ -38,6 +38,11 @@ function ApplicationDetail() {
   const [roundStatus, setRoundStatus] = useState('waiting');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit round state
+  const [editingRoundId, setEditingRoundId] = useState(null);
+  const [roundEditForm, setRoundEditForm] = useState({});
+  const [savingRound, setSavingRound] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,6 +118,31 @@ function ApplicationDetail() {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRoundEditStart = (s) => {
+    setEditingRoundId(s.app_id);
+    setRoundEditForm({
+      round: s.round,
+      date: s.date?.split('T')[0] ?? '',
+      round_status: s.round_status || 'waiting',
+      notes: s.notes || '',
+    });
+  };
+
+  const handleRoundEditSave = async (e, statusId) => {
+    e.preventDefault();
+    setSavingRound(true);
+    try {
+      const updated = await updateStatus(token, id, statusId, roundEditForm);
+      setStatuses(statuses.map((s) => s.app_id === statusId ? updated[0] : s));
+      setEditingRoundId(null);
+    } catch (err) {
+      if (err.status === 401) { handleUnauthorized(); return; }
+      setError(err.message);
+    } finally {
+      setSavingRound(false);
     }
   };
 
@@ -392,29 +422,104 @@ function ApplicationDetail() {
             <p className="text-gray-400 text-sm text-center py-4">No interview rounds logged yet.</p>
           ) : (
             <div className="space-y-3">
-              {statuses.map((s) => (
-                <div key={s.app_id} className="flex items-start justify-between py-3 border-b border-gray-50 last:border-0">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800 capitalize">{s.round}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{new Date(s.date).toLocaleDateString()}</p>
-                    {s.notes && <p className="text-xs text-gray-600 mt-1">{s.notes}</p>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      s.round_status === 'positive' ? 'bg-green-100 text-green-700' :
-                      s.round_status === 'negative' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {s.round_status || 'waiting'}
-                    </span>
-                    <button
-                      onClick={() => handleDeleteStatus(s.app_id)}
-                      className="text-gray-300 hover:text-red-500 text-sm transition-colors"
-                      aria-label="Delete round"
-                    >
-                      ✕
-                    </button>
-                  </div>
+              {[...statuses].sort((a, b) => new Date(a.date) - new Date(b.date)).map((s) => (
+                <div key={s.app_id} className="py-3 border-b border-gray-50 last:border-0">
+                  {editingRoundId === s.app_id ? (
+                    <form onSubmit={(e) => handleRoundEditSave(e, s.app_id)} className="bg-gray-50 rounded-xl p-4 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Round Type</label>
+                          <select
+                            value={roundEditForm.round}
+                            onChange={(e) => setRoundEditForm({ ...roundEditForm, round: e.target.value })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            {ROUND_TYPES.map((r) => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
+                          <input
+                            type="date"
+                            value={roundEditForm.date}
+                            onChange={(e) => setRoundEditForm({ ...roundEditForm, date: e.target.value })}
+                            required
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Outcome</label>
+                        <select
+                          value={roundEditForm.round_status}
+                          onChange={(e) => setRoundEditForm({ ...roundEditForm, round_status: e.target.value })}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          {OUTCOMES.map((o) => (
+                            <option key={o} value={o}>{o}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
+                        <textarea
+                          value={roundEditForm.notes}
+                          onChange={(e) => setRoundEditForm({ ...roundEditForm, notes: e.target.value })}
+                          rows={2}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          disabled={savingRound}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm py-2 rounded-lg transition-colors"
+                        >
+                          {savingRound ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingRoundId(null)}
+                          className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-800 capitalize">{s.round}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{new Date(s.date).toLocaleDateString()}</p>
+                        {s.notes && <p className="text-xs text-gray-600 mt-1">{s.notes}</p>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          s.round_status === 'positive' ? 'bg-green-100 text-green-700' :
+                          s.round_status === 'negative' ? 'bg-red-100 text-red-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {s.round_status || 'waiting'}
+                        </span>
+                        <button
+                          onClick={() => handleRoundEditStart(s)}
+                          className="text-gray-300 hover:text-blue-500 text-xs transition-colors"
+                          aria-label="Edit round"
+                        >
+                          ✎
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStatus(s.app_id)}
+                          className="text-gray-300 hover:text-red-500 text-sm transition-colors"
+                          aria-label="Delete round"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
