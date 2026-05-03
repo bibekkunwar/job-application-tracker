@@ -50,9 +50,12 @@ function AddApplication() {
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
         <button
           onClick={() => navigate('/')}
-          className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1"
+          className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
         >
-          ← Back
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
         </button>
         <h1 className="text-xl font-semibold text-gray-800">Add Application</h1>
       </div>
@@ -178,7 +181,7 @@ function AddApplication() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
+              className="w-full bg-blue-600 hover:bg-blue-700 active:opacity-80 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
             >
               {loading ? 'Adding...' : 'Add Application'}
             </button>

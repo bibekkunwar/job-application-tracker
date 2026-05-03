@@ -16,6 +16,9 @@ const STATUS_COLORS = {
   ghosted: 'bg-gray-100 text-gray-600',
 };
 
+const btnPrimary = 'flex-1 bg-blue-600 hover:bg-blue-700 active:opacity-80 disabled:bg-blue-300 disabled:cursor-not-allowed text-white text-sm py-2 rounded-lg transition-colors cursor-pointer';
+const btnSecondary = 'flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer';
+
 function ApplicationDetail() {
   const { id } = useParams();
   const { token, handleUnauthorized } = useAuth();
@@ -178,15 +181,18 @@ function ApplicationDetail() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/')}
-            className="text-gray-500 hover:text-gray-800 text-sm"
+            className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
           >
-            ← Back
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
           </button>
           <h1 className="text-xl font-semibold text-gray-800">Application Detail</h1>
         </div>
         <button
           onClick={handleDelete}
-          className="text-red-500 hover:text-red-700 text-sm font-medium"
+          className="text-sm font-medium text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
         >
           Delete
         </button>
@@ -223,7 +229,7 @@ function ApplicationDetail() {
                   <select
                     value={editForm.status}
                     onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>{s}</option>
@@ -237,7 +243,7 @@ function ApplicationDetail() {
                     value={editForm.date_applied}
                     onChange={(e) => setEditForm({ ...editForm, date_applied: e.target.value })}
                     required
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                 </div>
                 <div>
@@ -245,7 +251,7 @@ function ApplicationDetail() {
                   <select
                     value={editForm.platform}
                     onChange={(e) => setEditForm({ ...editForm, platform: e.target.value })}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
                     <option value="">Select platform</option>
                     {PLATFORM_OPTIONS.map((p) => (
@@ -274,18 +280,10 @@ function ApplicationDetail() {
                 />
               </div>
               <div className="flex gap-2 pt-1">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm py-2 rounded-lg transition-colors"
-                >
+                <button type="submit" disabled={saving} className={btnPrimary}>
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50"
-                >
+                <button type="button" onClick={() => setIsEditing(false)} className={btnSecondary}>
                   Cancel
                 </button>
               </div>
@@ -303,7 +301,7 @@ function ApplicationDetail() {
                   </span>
                   <button
                     onClick={handleEditStart}
-                    className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors cursor-pointer"
                   >
                     Edit
                   </button>
@@ -323,7 +321,7 @@ function ApplicationDetail() {
                 {job.job_url && (
                   <div className="col-span-2">
                     <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Job URL</p>
-                    <a href={job.job_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline break-all">
+                    <a href={job.job_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline break-all cursor-pointer">
                       {job.job_url}
                     </a>
                   </div>
@@ -345,7 +343,7 @@ function ApplicationDetail() {
             <h3 className="font-semibold text-gray-800">Interview Rounds</h3>
             <button
               onClick={() => setShowForm(!showForm)}
-              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg transition-colors"
+              className="text-sm bg-blue-600 hover:bg-blue-700 active:opacity-80 text-white px-4 py-1.5 rounded-lg transition-colors cursor-pointer"
             >
               + Add Round
             </button>
@@ -359,7 +357,7 @@ function ApplicationDetail() {
                   <select
                     value={round}
                     onChange={(e) => setRound(e.target.value)}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
                     {ROUND_TYPES.map((r) => (
                       <option key={r} value={r}>{r}</option>
@@ -373,7 +371,7 @@ function ApplicationDetail() {
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     required
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   />
                 </div>
               </div>
@@ -382,7 +380,7 @@ function ApplicationDetail() {
                 <select
                   value={roundStatus}
                   onChange={(e) => setRoundStatus(e.target.value)}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
                   {OUTCOMES.map((o) => (
                     <option key={o} value={o}>{o}</option>
@@ -400,18 +398,10 @@ function ApplicationDetail() {
                 />
               </div>
               <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm py-2 rounded-lg transition-colors"
-                >
+                <button type="submit" disabled={submitting} className={btnPrimary}>
                   {submitting ? 'Saving...' : 'Save Round'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50"
-                >
+                <button type="button" onClick={() => setShowForm(false)} className={btnSecondary}>
                   Cancel
                 </button>
               </div>
@@ -432,7 +422,7 @@ function ApplicationDetail() {
                           <select
                             value={roundEditForm.round}
                             onChange={(e) => setRoundEditForm({ ...roundEditForm, round: e.target.value })}
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                           >
                             {ROUND_TYPES.map((r) => (
                               <option key={r} value={r}>{r}</option>
@@ -446,7 +436,7 @@ function ApplicationDetail() {
                             value={roundEditForm.date}
                             onChange={(e) => setRoundEditForm({ ...roundEditForm, date: e.target.value })}
                             required
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                           />
                         </div>
                       </div>
@@ -455,7 +445,7 @@ function ApplicationDetail() {
                         <select
                           value={roundEditForm.round_status}
                           onChange={(e) => setRoundEditForm({ ...roundEditForm, round_status: e.target.value })}
-                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                         >
                           {OUTCOMES.map((o) => (
                             <option key={o} value={o}>{o}</option>
@@ -472,18 +462,10 @@ function ApplicationDetail() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <button
-                          type="submit"
-                          disabled={savingRound}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white text-sm py-2 rounded-lg transition-colors"
-                        >
+                        <button type="submit" disabled={savingRound} className={btnPrimary}>
                           {savingRound ? 'Saving...' : 'Save'}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditingRoundId(null)}
-                          className="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50"
-                        >
+                        <button type="button" onClick={() => setEditingRoundId(null)} className={btnSecondary}>
                           Cancel
                         </button>
                       </div>
@@ -505,14 +487,14 @@ function ApplicationDetail() {
                         </span>
                         <button
                           onClick={() => handleRoundEditStart(s)}
-                          className="text-gray-300 hover:text-blue-500 text-xs transition-colors"
+                          className="text-gray-300 hover:text-blue-500 text-xs transition-colors cursor-pointer p-1 rounded hover:bg-blue-50"
                           aria-label="Edit round"
                         >
                           ✎
                         </button>
                         <button
                           onClick={() => handleDeleteStatus(s.app_id)}
-                          className="text-gray-300 hover:text-red-500 text-sm transition-colors"
+                          className="text-gray-300 hover:text-red-500 text-sm transition-colors cursor-pointer p-1 rounded hover:bg-red-50"
                           aria-label="Delete round"
                         >
                           ✕

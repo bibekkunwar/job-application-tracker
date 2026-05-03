@@ -67,7 +67,7 @@ function Dashboard() {
           {user && <p className="text-sm text-gray-500">{user.email}</p>}
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-500 hover:text-gray-800 font-medium"
+            className="text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors cursor-pointer"
           >
             Logout
           </button>
@@ -123,7 +123,7 @@ function Dashboard() {
           {isFiltering && (
             <button
               onClick={() => { setSearchQuery(''); setStatusFilter(''); }}
-              className="text-sm text-gray-400 hover:text-gray-700 px-2"
+              className="text-sm text-gray-400 hover:text-gray-700 px-2 transition-colors cursor-pointer"
             >
               Clear
             </button>
@@ -147,7 +147,7 @@ function Dashboard() {
             <p className="text-gray-400 text-sm mb-4">No applications yet.</p>
             <button
               onClick={() => navigate('/addapplication')}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg"
+              className="bg-blue-600 hover:bg-blue-700 active:opacity-80 text-white text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer"
             >
               Add your first application
             </button>
