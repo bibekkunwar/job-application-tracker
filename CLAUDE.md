@@ -181,14 +181,14 @@ npm run dev        # starts Vite on port 5173
 ## Known Issues & TODO
 
 ### Known Issues
-- `updateJob` in `frontend/src/api/jobs.js` is defined but there is no `deleteStatus` (delete interview round) API call — the status delete route exists on the backend but is not wired to a frontend API function.
-- Token is stored only in `localStorage`; there is no token refresh logic. If the Supabase JWT expires, the user will get 401s without being redirected to login automatically.
+- ~~`updateJob` in `frontend/src/api/jobs.js` is defined but there is no `deleteStatus` (delete interview round) API call~~ — fixed: `deleteStatus` added and wired to delete button on each round.
+- ~~Token is stored only in `localStorage`; there is no token refresh logic~~ — fixed: `handleUnauthorized` in `AuthContext` auto-logouts and navigates to `/login` on any 401.
 - `src/hooks/` and `src/assets/` are empty placeholder directories.
 
 ### TODO
-- [ ] Add `deleteStatus` function to `frontend/src/api/jobs.js`
-- [ ] Add token expiry detection in `requireAuth` middleware or in `AuthContext` to auto-logout on 401
-- [ ] Add edit functionality for existing interview rounds on `ApplicationDetail` page
+- [x] Add `deleteStatus` function to `frontend/src/api/jobs.js`
+- [x] Add token expiry detection — `handleUnauthorized` in `AuthContext` auto-logouts on 401
+- [x] Add edit functionality for job application fields on `ApplicationDetail` page
 - [ ] Add pagination or filtering/search to the Dashboard job list
 - [ ] Add `updateStatus` call to frontend API layer (backend route already exists)
 - [x] Add `vercel.json` to frontend for SPA rewrite (fixes 404 on page refresh in Vercel)

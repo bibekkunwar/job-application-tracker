@@ -8,9 +8,15 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
+const allowedOrigins = ['http://localhost:5173'];
+if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
 }));
 
 app.use(express.json());

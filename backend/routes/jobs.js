@@ -114,11 +114,11 @@ router.put('/:id', requireAuth, async (req, res) => {
     try { 
 
         const jobId = req.params.id;
-        const { status, notes, platform, role } = req.body
+        const { status, notes, platform, role, company_name, job_url, date_applied } = req.body
 
         const { data, error } = await supabase
             .from('job_application')
-            .update({ status, notes, platform, role })
+            .update({ status, notes, platform, role, company_name, job_url, date_applied })
             .eq('job_id', jobId)
             .eq('user_id', req.user.id)
             .select();
