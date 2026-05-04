@@ -64,7 +64,8 @@ job-tracker/
 │   │   │   └── AuthContext.jsx  # user + token state, login, logout,
 │   │   │                        # handleUnauthorized (logout + navigate /login on 401)
 │   │   ├── components/
-│   │   │   └── ProtectedRoute.jsx  # Redirects to /login if no token
+│   │   │   ├── ProtectedRoute.jsx  # Redirects to /login if no token
+│   │   │   └── Icons.jsx           # All SVG icons as named exports (no npm icon lib)
 │   │   ├── pages/
 │   │   │   ├── Login.jsx           # Email/password login
 │   │   │   ├── Register.jsx        # Email/password registration
@@ -206,6 +207,18 @@ if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL);
 ```
 Requests with no `Origin` header (curl, Postman, server-to-server) are always passed through.
 
+### Styling — Icons
+All icons live in `src/components/Icons.jsx` as inline SVG named exports (no npm icon library). Available exports:
+`BriefcaseIcon, SearchIcon, PlusIcon, ChevronRightIcon, ChevronLeftIcon, CalendarIcon, LinkIcon, DocumentTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, XCircleIcon, ClockIcon, InboxStackIcon, ArrowRightOnRectangleIcon, EnvelopeIcon, LockClosedIcon, PhoneIcon, CodeBracketIcon, UsersIcon, MapPinIcon, Spinner`
+
+`Spinner` includes `animate-spin` and renders a circular loading indicator.
+
+### Styling — Typography & Font
+Inter is loaded via Google Fonts in `index.html`. `index.css` sets:
+```css
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+```
+
 ### Styling — Interactive Elements
 All interactive elements must follow these rules:
 - **Every button:** `cursor-pointer transition-colors`
@@ -213,32 +226,52 @@ All interactive elements must follow these rules:
 - **Disabled buttons:** `disabled:bg-blue-300 disabled:cursor-not-allowed`
 - **Secondary / cancel buttons:** `border border-gray-200 hover:bg-gray-100 active:bg-gray-200`
 - **Destructive buttons:** `text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100`
-- **Icon buttons (✎ ✕):** `cursor-pointer p-1 rounded hover:bg-<color>-50 transition-colors`
+- **Icon-only buttons:** `p-1.5 rounded-lg hover:bg-<color>-50 transition-colors cursor-pointer`
 
-`ApplicationDetail.jsx` defines two shared class constants for form buttons:
+`ApplicationDetail.jsx` defines shared class constants:
 ```js
-const btnPrimary   = 'flex-1 bg-blue-600 hover:bg-blue-700 active:opacity-80 disabled:bg-blue-300 disabled:cursor-not-allowed text-white text-sm py-2 rounded-lg transition-colors cursor-pointer';
-const btnSecondary = 'flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer';
+const btnPrimary   = 'flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:opacity-80 disabled:bg-blue-300 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 rounded-xl transition-colors cursor-pointer';
+const btnSecondary = 'flex-1 border border-gray-200 text-gray-600 text-sm py-2.5 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer';
+const inputCls     = 'w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 focus:bg-white transition-colors';
 ```
 
-### Styling — Back Button Pattern
-Both `AddApplication` and `ApplicationDetail` use a consistent styled back button — gray pill with chevron SVG:
+### Styling — Navbar Pattern
+`Dashboard`, `AddApplication`, and `ApplicationDetail` all share a sticky top navbar:
 ```jsx
-<button
-  onClick={() => navigate('/')}
-  className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
->
-  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-  </svg>
+<div className="bg-white border-b border-gray-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-10">
+```
+- Dashboard navbar: brand left, user avatar + logout right
+- AddApplication / ApplicationDetail navbar: back button + divider + brand left, delete button right (ApplicationDetail only)
+
+### Styling — Company Avatar
+Deterministic color from company name (same color for same company across pages):
+```js
+const AVATAR_COLORS = ['bg-blue-500','bg-violet-500','bg-emerald-500','bg-amber-500','bg-rose-500','bg-indigo-500','bg-pink-500','bg-teal-500'];
+function avatarColor(name = '') { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length]; }
+```
+Dashboard uses `w-10 h-10 rounded-xl`; ApplicationDetail uses `w-14 h-14 rounded-2xl`.
+
+### Styling — Back Button Pattern
+Both `AddApplication` and `ApplicationDetail` use `ChevronLeftIcon` from Icons.jsx:
+```jsx
+<button onClick={() => navigate('/')}
+  className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 active:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+  <ChevronLeftIcon className="w-4 h-4" />
   Back
 </button>
 ```
 
 ### Styling — Status & Outcome Colors
 ```
-Status:   applied → blue   | in progress → yellow | accepted → green | rejected → red | ghosted → gray
-Outcome:  positive → green | negative → red        | waiting → yellow
+Status:   applied → blue-100/700   | in progress → amber-100/700 | accepted → emerald-100/700
+          rejected → red-100/600   | ghosted → gray-100/500
+Outcome:  positive → emerald-100/700 | negative → red-100/600 | waiting → amber-100/700
+```
+
+### Styling — Form Inputs
+All form inputs use `bg-gray-50 focus:bg-white` for a subtle focus transition:
+```
+border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white transition-colors
 ```
 
 ---
@@ -252,20 +285,23 @@ Outcome:  positive → green | negative → red        | waiting → yellow
 - Clicking a job card navigates to `/applicationdetail/:id`
 
 ### ApplicationDetail
-- **Job card view:** company, role, status badge, date applied, platform, job URL (clickable), notes
-- **Job card edit:** "Edit" button (top-right of card) → inline form with all 7 fields; saves via `PUT /api/jobs/:id`
+- **Job card view:** large company avatar (colored circle, `w-14 h-14 rounded-2xl`), company name + role, status badge, PencilIcon edit button top-right
+- **Metadata rows:** CalendarIcon (date applied), MapPinIcon (platform), LinkIcon (job URL, clickable), DocumentTextIcon (notes) — each row has a fixed-width label column
+- **Job card edit:** PencilIcon button → inline form with all 7 fields; saves via `PUT /api/jobs/:id`; Spinner on saving
 - **Interview rounds:** displayed chronologically by `date` (client-side sort, oldest first)
-- **Add round:** "+ Add Round" button → inline form (round type, date, outcome, notes)
-- **Edit round:** ✎ button per row → inline form pre-filled with existing data; saves via `PUT /api/jobs/:jobId/status/:id`
-- **Delete round:** ✕ button per row → confirm dialog → `DELETE /api/jobs/:jobId/status/:id`
-- **Delete application:** "Delete" button in header → confirm dialog → `DELETE /api/jobs/:id` → navigate to dashboard
+- **Round display:** numbered blue circle (step indicator), round type with icon (PhoneIcon/CodeBracketIcon/UsersIcon/DocumentTextIcon), outcome badge, date; PencilIcon + TrashIcon appear on row hover (`opacity-0 group-hover:opacity-100`)
+- **Add round:** "Add Round" button → inline form (round type, date, outcome, notes); Spinner on saving
+- **Edit round:** PencilIcon per row → inline form pre-filled; saves via `PUT /api/jobs/:jobId/status/:id`
+- **Delete round:** TrashIcon per row → confirm dialog → `DELETE /api/jobs/:jobId/status/:id`
+- **Delete application:** TrashIcon + "Delete" in navbar → confirm dialog → `DELETE /api/jobs/:id` → navigate to dashboard
+- **Empty rounds state:** CalendarIcon illustration with prompt text
 
 ---
 
 ## Known Issues
 
 All previously tracked issues have been resolved:
-- ~~Missing `deleteStatus` frontend function~~ — added and wired to ✕ button per round
+- ~~Missing `deleteStatus` frontend function~~ — added and wired to TrashIcon per round
 - ~~No token refresh / 401 handling~~ — `handleUnauthorized` in `AuthContext` auto-logouts on any 401
 - ~~Empty `src/hooks/` and `src/assets/` directories~~ — removed
 - ~~Duplicate error display in `Login.jsx`~~ — removed
@@ -273,6 +309,7 @@ All previously tracked issues have been resolved:
 - ~~No inline edit for interview rounds~~ — fully implemented with pre-filled form
 - ~~No search or filter on Dashboard~~ — search by company name + filter by status added
 - ~~No `updateStatus` in frontend API~~ — added
+- ~~Plain unstyled UI~~ — full SaaS-style redesign: Inter font, sticky navbars, company avatars, icon inputs, stat cards with icons, timeline rounds, Spinner loading states across all pages
 
 ## TODO
 
